@@ -36,7 +36,6 @@ jobs:
   - name: Install NPM
     run: |
       npm install
-      npx tailwindcss -i ./src/static/input.css -o ./src/static/dist/output.css
 
   - uses: azure/login@v1
     with:
