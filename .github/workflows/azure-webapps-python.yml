@@ -34,9 +34,6 @@ jobs:
     uses: actions/setup-node@v3
     with:
       node-version: 18
-  - name: Install NPM
-    run: |
-      run: pip install 
 
   - uses: azure/login@v1
     with:
