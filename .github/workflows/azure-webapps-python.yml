@@ -1,0 +1,58 @@
+name: Deploy staging
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AZURE_WEBAPP_NAME: pythonde
+  WORKING_DIRECTORY: '.'
+  PYTHON_VERSION: '3.11'
+  STARTUP_COMMAND: ''
+
+jobs:
+ build-and-deploy:
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@master
+
+  - name: Setup Python
+    uses: actions/setup-python@v4
+    with:
+     python-version: ${{ env.PYTHON_VERSION }}
+
+  - name: python install
+    working-directory: ${{ env.WORKING_DIRECTORY }}
+    run: |
+      pushd './${{ env.WORKING_DIRECTORY }}'
+      python -m pip install --upgrade pip
+      git config --global url."https://${{ secrets.ACCESS_TOKEN }}@github".insteadOf https://github
+      popd
+
+  - name: Setup Node 18.x
+    uses: actions/setup-node@v3
+    with:
+      node-version: 18
+  - name: Install NPM
+    run: |
+      npm install
+
+  - uses: azure/login@v1
+    with:
+     creds: ${{ secrets.AZURE_SERVICE_PRINCIPAL_WEBAPP }}
+  - uses: azure/appservice-settings@v1
+    with:
+     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+     mask-inputs: false
+     general-settings-json: '{"linuxFxVersion": "PYTHON|${{ env.PYTHON_VERSION }}"}' #'General configuration settings as Key Value pairs'
+  # deploy web app
+  - uses: azure/webapps-deploy@v2
+    with:
+     app-name: ${{ env.AZURE_WEBAPP_NAME }}
+     slot-name: 'dev'
+     package: ${{ env.WORKING_DIRECTORY }}
+     startup-command: ${{ env.STARTUP_COMMAND }}
+  # Azure logout
+  - name: logout
+    run: |
+     az logout
