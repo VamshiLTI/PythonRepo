@@ -36,7 +36,7 @@ jobs:
       node-version: 18
   - name: Install NPM
     run: |
-      pip install
+      run: pip install -r requirements.txt
 
   - uses: azure/login@v1
     with:
