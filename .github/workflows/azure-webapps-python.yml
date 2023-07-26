@@ -36,7 +36,7 @@ jobs:
       node-version: 18
   - name: Install NPM
     run: |
-      npm install
+      pip install
 
   - uses: azure/login@v1
     with:
